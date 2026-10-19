@@ -50,7 +50,7 @@ A lightweight, distraction-free, terminal-themed To-Do app designed for Android 
 
 ### 4. Viewing and Restoring Completed Tasks
 * In the bar below the list tabs, check the **`COMPLETED (count)`** checkbox.
-* Completed tasks will be displayed in place with strikethrough text.
+* Completed tasks will be displayed in place with dimmed text and a checked box.
 * Tap the checkbox of any completed task to **uncheck** and restore it back to the active list.
 
 ---
