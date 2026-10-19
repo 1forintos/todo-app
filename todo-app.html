@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0d0d0d" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>TODO // TERMINAL</title>
+
+  <!-- Self-contained Vector Icon (Dark background, golden yellow terminal checkbox with checkmark) -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='108' fill='%230d0d0d'/%3E%3Crect x='139' y='139' width='234' height='234' rx='28' fill='%23141414' stroke='%23e8c840' stroke-width='26'/%3E%3Cpath d='M191 259 L247 315 L327 203' fill='none' stroke='%23e8c840' stroke-width='32' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='108' fill='%230d0d0d'/%3E%3Crect x='139' y='139' width='234' height='234' rx='28' fill='%23141414' stroke='%23e8c840' stroke-width='26'/%3E%3Cpath d='M191 259 L247 315 L327 203' fill='none' stroke='%23e8c840' stroke-width='32' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+
+  <!-- Inline Web App Manifest for Android 'Add to Home Screen' installation -->
+  <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22TODO%20%2F%2F%20SYS%22%2C%22short_name%22%3A%22TODO%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230d0d0d%22%2C%22theme_color%22%3A%22%230d0d0d%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20512%20512'%253E%253Crect%20width%3D'512'%20height%3D'512'%20rx%3D'108'%20fill%3D'%25230d0d0d'%2F%253E%253Crect%20x%3D'139'%20y%3D'139'%20width%3D'234'%20height%3D'234'%20rx%3D'28'%20fill%3D'%2523141414'%20stroke%3D'%2523e8c840'%20stroke-width%3D'26'%2F%253E%253Cpath%20d%3D'M191%20259%20L247%20315%20L327%20203'%20fill%3D'none'%20stroke%3D'%2523e8c840'%20stroke-width%3D'32'%20stroke-linecap%3D'round'%20stroke-linejoin%3D'round'%2F%253E%253C%2Fsvg%253E%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      height: 100%;
+      background: #0d0d0d;
+      color: #c8c8b0;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 16px;
+      overflow: hidden; /* App shell handles scrolling */
+    }
+
+    #app-container {
+      width: 100%;
+      max-width: 680px;
+      height: 100%;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      padding: 12px 14px;
+      gap: 12px;
+      position: relative;
+    }
+
+    /* ── Top Header Bar ── */
+    #header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #333;
+      padding-bottom: 8px;
+      flex-shrink: 0;
+    }
+
+    #header h1 {
+      font-size: 1.1em;
+      color: #e8c840;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+
+    #status-bar {
+      font-size: 0.75em;
+      color: #666;
+      text-align: right;
+      line-height: 1.6;
+    }
+
+    #status-bar .active-label {
+      color: #e8c840;
+    }
+
+    /* ── Lists Scroll Bar ── */
+    #lists-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      flex-shrink: 0;
+      scrollbar-width: none;
+    }
+    #lists-bar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .list-pill {
+      background: #1a1a1a;
+      border: 1px solid #444;
+      color: #888;
+      font-family: inherit;
+      font-size: 0.85em;
+      padding: 8px 14px;
+      border-radius: 3px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+      min-height: 40px;
+      flex-shrink: 0;
+      user-select: none;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+
+    .list-pill:hover,
+    .list-pill.active {
+      background: #252525;
+      border-color: #e8c840;
+      color: #e8c840;
+    }
+
+    .list-pill .pill-count {
+      color: #666;
+      font-size: 0.8em;
+    }
+    .list-pill.active .pill-count {
+      color: #e8c840;
+    }
+
+    .btn-new-list {
+      background: transparent;
+      border: 1px dashed #444;
+      color: #888;
+      font-family: inherit;
+      font-size: 0.85em;
+      padding: 8px 14px;
+      border-radius: 3px;
+      cursor: pointer;
+      white-space: nowrap;
+      min-height: 40px;
+      flex-shrink: 0;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .btn-new-list:hover {
+      border-color: #e8c840;
+      color: #e8c840;
+    }
+
+    /* ── Controls Row (Actions Menu + Show Completed + Total Count) ── */
+    #controls-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 0.8em;
+      color: #666;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .controls-left-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Actions Menu Trigger */
+    .menu-container {
+      position: relative;
+    }
+
+    .btn-actions-trigger {
+      background: #1a1a1a;
+      border: 1px solid #444;
+      color: #c8c8b0;
+      font-family: inherit;
+      font-size: 0.85em;
+      padding: 6px 10px;
+      border-radius: 3px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      line-height: 1;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .btn-actions-trigger:hover,
+    .btn-actions-trigger.active {
+      border-color: #e8c840;
+      color: #e8c840;
+    }
+
+    /* Actions Dropdown */
+    .actions-dropdown {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      background: #141414;
+      border: 1px solid #444;
+      border-radius: 3px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.7);
+      flex-direction: column;
+      min-width: 200px;
+      z-index: 100;
+    }
+
+    .actions-dropdown.show {
+      display: flex;
+    }
+
+    .dropdown-item {
+      background: none;
+      border: none;
+      border-bottom: 1px solid #222;
+      color: #c8c8b0;
+      font-family: inherit;
+      font-size: 0.82em;
+      padding: 10px 14px;
+      text-align: left;
+      cursor: pointer;
+      transition: background 0.1s, color 0.1s;
+    }
+    .dropdown-item:last-child {
+      border-bottom: none;
+    }
+    .dropdown-item:hover {
+      background: #202020;
+      color: #e8c840;
+    }
+    .dropdown-item.danger-item:hover {
+      color: #c0392b;
+    }
+
+    /* Show Completed Toggle with Dark Checkbox */
+    .toggle-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .toggle-wrap input[type="checkbox"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      background: #141414;
+      border: 1px solid #444;
+      border-radius: 2px;
+      outline: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      vertical-align: middle;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .toggle-wrap input[type="checkbox"]:checked {
+      background: #252525;
+      border-color: #e8c840;
+    }
+
+    .toggle-wrap input[type="checkbox"]:checked::after {
+      content: '✓';
+      font-size: 11px;
+      font-weight: bold;
+      color: #e8c840;
+      line-height: 1;
+    }
+
+    #listSummary {
+      font-weight: bold;
+      color: #888;
+      white-space: nowrap;
+    }
+
+    /* ── Scrollable Todo Items Area ── */
+    #todo-scroll-area {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      min-height: 0;
+      padding-right: 2px;
+    }
+
+    #todo-scroll-area::-webkit-scrollbar {
+      width: 4px;
+    }
+    #todo-scroll-area::-webkit-scrollbar-thumb {
+      background: #252525;
+      border-radius: 2px;
+    }
+
+    #todo-items {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      list-style: none;
+    }
+
+    /* ── Todo Item Row ── */
+    .todo-row {
+      background: #1a1a1a;
+      border: 1px solid #444;
+      color: #c8c8b0;
+      font-family: inherit;
+      font-size: 0.95em;
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      gap: 0;
+      min-height: 48px;
+      overflow: hidden;
+      /* Smooth collapse transition */
+      transition: opacity 0.25s ease, max-height 0.28s cubic-bezier(0.4, 0, 0.2, 1), margin 0.28s ease, padding 0.28s ease, border-color 0.15s;
+      max-height: 120px;
+    }
+
+    .todo-row.anim-fade-out {
+      opacity: 0;
+      max-height: 0 !important;
+      min-height: 0 !important;
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
+      margin-top: -4px !important;
+      margin-bottom: -4px !important;
+      border-color: transparent !important;
+      pointer-events: none;
+    }
+
+    .todo-row:hover {
+      border-color: #666;
+    }
+
+    .todo-row.completed {
+      opacity: 0.55;
+      border-color: #262626;
+      background: #121212;
+    }
+
+    .todo-row.completed .item-body {
+      text-decoration: line-through;
+      color: #666;
+    }
+
+    /* Checkbox Button Area: large mobile touch target */
+    .check-btn-wrap {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 14px 12px 14px;
+      min-height: 48px;
+      flex-shrink: 0;
+      transition: background 0.1s;
+    }
+
+    .check-btn-wrap:active {
+      background: #252525;
+    }
+
+    .check-box {
+      width: 18px;
+      height: 18px;
+      background: #141414;
+      border: 1.5px solid #e8c840;
+      border-radius: 2px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.15s, border-color 0.15s;
+      user-select: none;
+    }
+
+    .check-box::after {
+      content: '';
+      font-size: 13px;
+      font-weight: bold;
+      color: #e8c840;
+      line-height: 1;
+    }
+
+    .todo-row.completed .check-box {
+      background: #252525;
+      border-color: #666;
+    }
+
+    .todo-row.completed .check-box::after,
+    .check-box.checked::after {
+      content: '✓';
+    }
+
+    .item-body {
+      line-height: 1.4;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+      flex: 1;
+      padding: 12px 14px 12px 0;
+      user-select: text;
+    }
+
+    /* Empty state */
+    .empty-banner {
+      border: 1px dashed #333;
+      padding: 28px 16px;
+      text-align: center;
+      color: #666;
+      font-size: 0.85em;
+      line-height: 1.8;
+      border-radius: 3px;
+    }
+
+    /* ── Bottom Input Row ── */
+    #bottom-input-wrap {
+      flex-shrink: 0;
+      border-top: 1px solid #222;
+      padding-top: 10px;
+    }
+
+    #input-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    #todo-input {
+      flex: 1;
+      background: #141414;
+      border: 1px solid #333;
+      color: #c8c8b0;
+      font-family: inherit;
+      font-size: 0.95em;
+      padding: 10px 14px;
+      border-radius: 3px;
+      outline: none;
+      min-height: 48px;
+      transition: border-color 0.15s;
+    }
+
+    #todo-input:focus {
+      border-color: #e8c840;
+    }
+
+    #todo-input::placeholder {
+      color: #444;
+    }
+
+    .btn-add {
+      background: #1a1a1a;
+      border: 1px solid #444;
+      color: #e8c840;
+      font-family: inherit;
+      font-size: 0.95em;
+      padding: 10px 18px;
+      cursor: pointer;
+      border-radius: 3px;
+      min-height: 48px;
+      font-weight: bold;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .btn-add:hover,
+    .btn-add:active {
+      background: #252525;
+      border-color: #e8c840;
+    }
+
+    /* ── Terminal Custom Modal Overlay ── */
+    #modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+
+    #modal-overlay.show {
+      display: flex;
+    }
+
+    #modal-box {
+      background: #141414;
+      border: 1px solid #444;
+      border-radius: 3px;
+      width: 100%;
+      max-width: 420px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.9);
+    }
+
+    #modal-title {
+      font-size: 1em;
+      color: #e8c840;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      border-bottom: 1px solid #2a2a2a;
+      padding-bottom: 8px;
+    }
+
+    #modal-msg {
+      font-size: 0.88em;
+      line-height: 1.6;
+      color: #c8c8b0;
+      word-break: break-word;
+    }
+
+    #modal-input {
+      background: #0d0d0d;
+      border: 1px solid #444;
+      color: #c8c8b0;
+      font-family: inherit;
+      font-size: 0.95em;
+      padding: 10px 12px;
+      border-radius: 3px;
+      outline: none;
+      display: none;
+    }
+    #modal-input:focus {
+      border-color: #e8c840;
+    }
+
+    #modal-btns {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .modal-btn {
+      background: #1a1a1a;
+      border: 1px solid #444;
+      color: #c8c8b0;
+      font-family: inherit;
+      font-size: 0.88em;
+      padding: 10px 18px;
+      cursor: pointer;
+      border-radius: 3px;
+      min-height: 42px;
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    .modal-btn.primary {
+      border-color: #e8c840;
+      color: #e8c840;
+      font-weight: bold;
+    }
+
+    .modal-btn.danger {
+      border-color: #c0392b;
+      color: #c0392b;
+      font-weight: bold;
+    }
+
+    .modal-btn:hover {
+      background: #252525;
+    }
+
+    /* Mobile tweaks */
+    @media (max-width: 480px) {
+      body {
+        font-size: 15px;
+      }
+      #app-container {
+        padding: 8px 10px;
+        gap: 10px;
+      }
+      .btn-add {
+        padding: 10px 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="app-container">
+    <!-- Header bar -->
+    <header id="header">
+      <h1>TODO // SYS</h1>
+      <div id="status-bar">
+        LIST: <span class="active-label" id="currentListTitle">MAIN</span><br />
+        <span id="activeCountDisplay">0 ACTIVE</span>
+      </div>
+    </header>
+
+    <!-- Lists horizontal selector (no purge button on list pill) -->
+    <nav id="lists-bar">
+      <!-- List pills injected dynamically -->
+    </nav>
+
+    <!-- Controls Row: Actions menu + Show Completed + Total Counter -->
+    <div id="controls-row">
+      <div class="controls-left-group">
+        <!-- Actions Dropdown Menu -->
+        <div class="menu-container">
+          <button type="button" class="btn-actions-trigger" id="actionsBtn">
+            ⚙ ACTIONS ▾
+          </button>
+          <div class="actions-dropdown" id="actionsDropdown">
+            <button type="button" class="dropdown-item" id="exportBtn">[EXPORT JSON]</button>
+            <button type="button" class="dropdown-item" id="importBtn">[RESTORE JSON]</button>
+            <button type="button" class="dropdown-item danger-item" id="deleteCurrentListBtn">[DELETE CURRENT LIST]</button>
+            <button type="button" class="dropdown-item danger-item" id="purgeCompletedBtn">[PURGE COMPLETED]</button>
+            <button type="button" class="dropdown-item danger-item" id="purgeAllBtn">[PURGE ALL IN LIST]</button>
+          </div>
+        </div>
+
+        <!-- Show Completed Toggle with dark styled checkbox -->
+        <label class="toggle-wrap">
+          <input type="checkbox" id="showCompletedToggle" />
+          <span>COMPLETED (<span id="completedCount">0</span>)</span>
+        </label>
+      </div>
+
+      <!-- <openitems>/<total> TOTAL e.g. 5/10 TOTAL -->
+      <div id="listSummary">0/0 TOTAL</div>
+    </div>
+
+    <!-- Scrollable Todo List Area -->
+    <main id="todo-scroll-area">
+      <ul id="todo-items">
+        <!-- Items injected dynamically -->
+      </ul>
+    </main>
+
+    <!-- Bottom Input Row (Always visible & pinned) -->
+    <footer id="bottom-input-wrap">
+      <form id="input-row">
+        <input type="text" id="todo-input" placeholder="> enter new task..." autocomplete="off" />
+        <button type="submit" class="btn-add">[+] ADD</button>
+      </form>
+      <input type="file" id="importInput" accept=".json" style="display: none;" />
+    </footer>
+  </div>
+
+  <!-- Terminal Style Modal Popup -->
+  <div id="modal-overlay">
+    <div id="modal-box">
+      <div id="modal-title">CONFIRMATION</div>
+      <div id="modal-msg">Are you sure?</div>
+      <input type="text" id="modal-input" autocomplete="off" />
+      <div id="modal-btns">
+        <button type="button" class="modal-btn" id="modalCancelBtn">CANCEL</button>
+        <button type="button" class="modal-btn primary" id="modalConfirmBtn">CONFIRM</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'retro_todo_app_data_v1';
+
+    const defaultState = {
+      activeListId: 'list_1',
+      showCompleted: false,
+      lists: [
+        { id: 'list_1', name: 'DAILY' },
+        { id: 'list_2', name: 'PROJECTS' },
+        { id: 'list_3', name: 'SUPPLIES' }
+      ],
+      todos: [
+        { id: 't1', listId: 'list_1', text: 'Welcome to your retro todo terminal', completed: false, createdAt: Date.now() },
+        { id: 't2', listId: 'list_1', text: 'Tap [ ] to complete (smoothly fades away)', completed: false, createdAt: Date.now() - 1000 },
+        { id: 't3', listId: 'list_1', text: 'Toggle COMPLETED to view and restore', completed: true, createdAt: Date.now() - 2000 }
+      ]
+    };
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && Array.isArray(parsed.lists) && Array.isArray(parsed.todos)) {
+            return parsed;
+          }
+        }
+      } catch (e) {
+        console.error('Storage error:', e);
+      }
+      return defaultState;
+    }
+
+    let state = loadState();
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (e) {
+        console.error('Storage error:', e);
+      }
+    }
+
+    // Modal Helper (Replaces alert/confirm/prompt with retro modal)
+    const modalOverlay = document.getElementById('modal-overlay');
+    const modalTitle = document.getElementById('modal-title');
+    const modalMsg = document.getElementById('modal-msg');
+    const modalInput = document.getElementById('modal-input');
+    const modalCancelBtn = document.getElementById('modalCancelBtn');
+    const modalConfirmBtn = document.getElementById('modalConfirmBtn');
+
+    let modalResolve = null;
+
+    function showModal({ title = 'SYSTEM DIALOG', message = '', isPrompt = false, isAlert = false, isDanger = false, defaultValue = '' }) {
+      return new Promise((resolve) => {
+        modalResolve = resolve;
+        modalTitle.textContent = title;
+        modalMsg.textContent = message;
+        modalOverlay.classList.add('show');
+
+        modalConfirmBtn.className = isDanger ? 'modal-btn danger' : 'modal-btn primary';
+        modalConfirmBtn.textContent = isAlert ? 'OK' : 'CONFIRM';
+
+        if (isAlert) {
+          modalCancelBtn.style.display = 'none';
+        } else {
+          modalCancelBtn.style.display = 'inline-block';
+        }
+
+        if (isPrompt) {
+          modalInput.style.display = 'block';
+          modalInput.value = defaultValue;
+          setTimeout(() => modalInput.focus(), 50);
+        } else {
+          modalInput.style.display = 'none';
+        }
+      });
+    }
+
+    modalCancelBtn.onclick = () => {
+      modalOverlay.classList.remove('show');
+      if (modalResolve) modalResolve(null);
+    };
+
+    modalConfirmBtn.onclick = () => {
+      modalOverlay.classList.remove('show');
+      if (modalResolve) {
+        if (modalInput.style.display === 'block') {
+          modalResolve(modalInput.value);
+        } else {
+          modalResolve(true);
+        }
+      }
+    };
+
+    // DOM Elements
+    const currentListTitle = document.getElementById('currentListTitle');
+    const activeCountDisplay = document.getElementById('activeCountDisplay');
+    const listsBar = document.getElementById('lists-bar');
+    const inputRow = document.getElementById('input-row');
+    const todoInput = document.getElementById('todo-input');
+    const showCompletedToggle = document.getElementById('showCompletedToggle');
+    const completedCount = document.getElementById('completedCount');
+    const listSummary = document.getElementById('listSummary');
+    const todoItems = document.getElementById('todo-items');
+    const actionsBtn = document.getElementById('actionsBtn');
+    const actionsDropdown = document.getElementById('actionsDropdown');
+    const exportBtn = document.getElementById('exportBtn');
+    const importBtn = document.getElementById('importBtn');
+    const importInput = document.getElementById('importInput');
+    const deleteCurrentListBtn = document.getElementById('deleteCurrentListBtn');
+    const purgeCompletedBtn = document.getElementById('purgeCompletedBtn');
+    const purgeAllBtn = document.getElementById('purgeAllBtn');
+
+    // Actions dropdown menu toggle
+    actionsBtn.onclick = (e) => {
+      e.stopPropagation();
+      actionsDropdown.classList.toggle('show');
+      actionsBtn.classList.toggle('active');
+    };
+
+    document.addEventListener('click', (e) => {
+      if (!actionsDropdown.contains(e.target) && e.target !== actionsBtn) {
+        actionsDropdown.classList.remove('show');
+        actionsBtn.classList.remove('active');
+      }
+    });
+
+    function ensureActiveList() {
+      if (!state.lists.some(l => l.id === state.activeListId)) {
+        if (state.lists.length > 0) {
+          state.activeListId = state.lists[0].id;
+        } else {
+          const defaultList = { id: 'list_' + Date.now(), name: 'MAIN' };
+          state.lists.push(defaultList);
+          state.activeListId = defaultList.id;
+        }
+      }
+    }
+
+    function renderLists() {
+      ensureActiveList();
+      listsBar.innerHTML = '';
+
+      state.lists.forEach(list => {
+        const activeTodos = state.todos.filter(t => t.listId === list.id && !t.completed).length;
+
+        const pill = document.createElement('div');
+        pill.className = `list-pill ${list.id === state.activeListId ? 'active' : ''}`;
+
+        const nameSpan = document.createElement('span');
+        nameSpan.textContent = list.name;
+        pill.appendChild(nameSpan);
+
+        if (activeTodos > 0) {
+          const countSpan = document.createElement('span');
+          countSpan.className = 'pill-count';
+          countSpan.textContent = `(${activeTodos})`;
+          pill.appendChild(countSpan);
+        }
+
+        pill.onclick = () => {
+          state.activeListId = list.id;
+          saveState();
+          render();
+        };
+
+        listsBar.appendChild(pill);
+      });
+
+      const newBtn = document.createElement('button');
+      newBtn.className = 'btn-new-list';
+      newBtn.textContent = '+ NEW LIST';
+      newBtn.onclick = async () => {
+        const name = await showModal({
+          title: 'NEW LIST',
+          message: 'ENTER LIST IDENTIFIER:',
+          isPrompt: true
+        });
+        if (name && name.trim()) {
+          const newList = {
+            id: 'list_' + Date.now(),
+            name: name.trim().toUpperCase()
+          };
+          state.lists.push(newList);
+          state.activeListId = newList.id;
+          saveState();
+          render();
+        }
+      };
+      listsBar.appendChild(newBtn);
+
+      const activeList = state.lists.find(l => l.id === state.activeListId);
+      currentListTitle.textContent = activeList ? activeList.name : 'NONE';
+    }
+
+    function updateCounts() {
+      const currentTodos = state.todos.filter(t => t.listId === state.activeListId);
+      const activeTodos = currentTodos.filter(t => !t.completed);
+      const finishedTodos = currentTodos.filter(t => t.completed);
+
+      activeCountDisplay.textContent = `${activeTodos.length} ACTIVE`;
+      completedCount.textContent = finishedTodos.length;
+      listSummary.textContent = `${activeTodos.length}/${currentTodos.length} TOTAL`;
+      showCompletedToggle.checked = !!state.showCompleted;
+
+      // Update pill count for active list
+      renderLists();
+    }
+
+    function renderTodos() {
+      todoItems.innerHTML = '';
+
+      const currentTodos = state.todos.filter(t => t.listId === state.activeListId);
+      const activeTodos = currentTodos.filter(t => !t.completed);
+      const finishedTodos = currentTodos.filter(t => t.completed);
+
+      activeCountDisplay.textContent = `${activeTodos.length} ACTIVE`;
+      completedCount.textContent = finishedTodos.length;
+      listSummary.textContent = `${activeTodos.length}/${currentTodos.length} TOTAL`;
+      showCompletedToggle.checked = !!state.showCompleted;
+
+      const visibleTodos = state.showCompleted ? currentTodos : activeTodos;
+
+      if (visibleTodos.length === 0) {
+        const empty = document.createElement('li');
+        empty.className = 'empty-banner';
+        empty.innerHTML = state.showCompleted
+          ? '-- NO ENTRIES IN THIS LIST --'
+          : '-- ALL TASKS CLEARED // ZERO ACTIVE --';
+        todoItems.appendChild(empty);
+        return;
+      }
+
+      visibleTodos.forEach(item => {
+        const li = document.createElement('li');
+        li.className = `todo-row ${item.completed ? 'completed' : ''}`;
+        li.dataset.id = item.id;
+
+        // Dedicated Checkbox Button Container (clicking here triggers complete/uncomplete)
+        const checkBtn = document.createElement('button');
+        checkBtn.type = 'button';
+        checkBtn.className = 'check-btn-wrap';
+        checkBtn.setAttribute('aria-label', item.completed ? 'Mark uncompleted' : 'Mark completed');
+
+        const checkBoxSpan = document.createElement('span');
+        checkBoxSpan.className = `check-box ${item.completed ? 'checked' : ''}`;
+        checkBtn.appendChild(checkBoxSpan);
+
+        // Task Text (Selection allowed, clicking here does not toggle checkbox)
+        const text = document.createElement('div');
+        text.className = 'item-body';
+        text.textContent = item.text;
+
+        // Checkbox Click Event with Smooth Slide-Up Animation
+        checkBtn.onclick = (e) => {
+          e.stopPropagation();
+
+          if (!state.showCompleted && !item.completed) {
+            // Smoothly collapse and fade out item
+            checkBoxSpan.classList.add('checked');
+            li.classList.add('anim-fade-out');
+
+            setTimeout(() => {
+              item.completed = true;
+              saveState();
+              renderTodos();
+            }, 260);
+          } else {
+            // In show-completed mode, toggle immediately
+            item.completed = !item.completed;
+            saveState();
+            renderTodos();
+          }
+        };
+
+        li.appendChild(checkBtn);
+        li.appendChild(text);
+        todoItems.appendChild(li);
+      });
+    }
+
+    function render() {
+      renderLists();
+      renderTodos();
+    }
+
+    // Input submission
+    inputRow.onsubmit = (e) => {
+      e.preventDefault();
+      const val = todoInput.value.trim();
+      if (!val) return;
+
+      state.todos.unshift({
+        id: 'item_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+        listId: state.activeListId,
+        text: val,
+        completed: false,
+        createdAt: Date.now()
+      });
+
+      todoInput.value = '';
+      saveState();
+      render();
+
+      const scrollArea = document.getElementById('todo-scroll-area');
+      scrollArea.scrollTop = 0;
+    };
+
+    showCompletedToggle.onchange = (e) => {
+      state.showCompleted = e.target.checked;
+      saveState();
+      renderTodos();
+    };
+
+    // Actions Menu Handlers
+    exportBtn.onclick = () => {
+      actionsDropdown.classList.remove('show');
+      const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(state, null, 2));
+      const a = document.createElement('a');
+      a.setAttribute('href', dataStr);
+      a.setAttribute('download', `todo_backup_${new Date().toISOString().slice(0, 10)}.json`);
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    };
+
+    importBtn.onclick = () => {
+      actionsDropdown.classList.remove('show');
+      importInput.click();
+    };
+
+    importInput.onchange = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = async (evt) => {
+        try {
+          const parsed = JSON.parse(evt.target.result);
+          if (parsed && Array.isArray(parsed.lists) && Array.isArray(parsed.todos)) {
+            state = parsed;
+            saveState();
+            render();
+            await showModal({ title: 'SYSTEM RESTORE', message: 'TASKS RESTORED SUCCESSFULLY.', isAlert: true });
+          } else {
+            await showModal({ title: 'ERROR', message: 'INVALID BACKUP FORMAT.', isAlert: true, isDanger: true });
+          }
+        } catch (err) {
+          await showModal({ title: 'ERROR', message: 'UNABLE TO PARSE FILE.', isAlert: true, isDanger: true });
+        }
+      };
+      reader.readAsText(file);
+      importInput.value = '';
+    };
+
+    deleteCurrentListBtn.onclick = async () => {
+      actionsDropdown.classList.remove('show');
+      if (state.lists.length <= 1) {
+        await showModal({ title: 'OPERATION DENIED', message: 'CANNOT DELETE THE ONLY REMAINING LIST.', isAlert: true });
+        return;
+      }
+      const activeList = state.lists.find(l => l.id === state.activeListId);
+      const confirmed = await showModal({
+        title: 'DELETE LIST',
+        message: `PERMANENTLY DELETE LIST "${activeList ? activeList.name : ''}" AND ALL ITS ITEMS?`,
+        isDanger: true
+      });
+      if (confirmed) {
+        state.lists = state.lists.filter(l => l.id !== state.activeListId);
+        state.todos = state.todos.filter(t => t.listId !== state.activeListId);
+        ensureActiveList();
+        saveState();
+        render();
+      }
+    };
+
+    purgeCompletedBtn.onclick = async () => {
+      actionsDropdown.classList.remove('show');
+      const completedInList = state.todos.filter(t => t.listId === state.activeListId && t.completed);
+      if (completedInList.length === 0) {
+        await showModal({ title: 'STATUS', message: 'NO COMPLETED ITEMS TO PURGE IN THIS LIST.', isAlert: true });
+        return;
+      }
+      const confirmed = await showModal({
+        title: 'PURGE COMPLETED',
+        message: `PURGE ALL ${completedInList.length} COMPLETED TASKS IN THIS LIST?`,
+        isDanger: true
+      });
+      if (confirmed) {
+        state.todos = state.todos.filter(t => !(t.listId === state.activeListId && t.completed));
+        saveState();
+        render();
+      }
+    };
+
+    purgeAllBtn.onclick = async () => {
+      actionsDropdown.classList.remove('show');
+      const inList = state.todos.filter(t => t.listId === state.activeListId);
+      if (inList.length === 0) return;
+      const confirmed = await showModal({
+        title: 'PURGE ALL',
+        message: `PURGE ALL ${inList.length} TASKS FROM ACTIVE LIST?`,
+        isDanger: true
+      });
+      if (confirmed) {
+        state.todos = state.todos.filter(t => t.listId !== state.activeListId);
+        saveState();
+        render();
+      }
+    };
+
+    // Initial render
+    render();
+  </script>
+</body>
+</html>
