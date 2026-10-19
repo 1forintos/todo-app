@@ -744,6 +744,29 @@
       }
     };
 
+    // Press Enter to confirm or Escape to cancel in modal dialogs
+    modalInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        modalConfirmBtn.click();
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        modalCancelBtn.click();
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (modalOverlay.classList.contains('show')) {
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          modalCancelBtn.click();
+        } else if (e.key === 'Enter' && modalInput.style.display !== 'block') {
+          e.preventDefault();
+          modalConfirmBtn.click();
+        }
+      }
+    });
+
     // DOM Elements
     const currentListTitle = document.getElementById('currentListTitle');
     const activeCountDisplay = document.getElementById('activeCountDisplay');
