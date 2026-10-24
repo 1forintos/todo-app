@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content" />
   <meta name="theme-color" content="#0d0d0d" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -39,7 +39,7 @@
       margin: 0 auto;
       display: flex;
       flex-direction: column;
-      padding: 12px 14px;
+      padding: 12px 14px 10px 14px;
       gap: 12px;
       position: relative;
     }
@@ -277,6 +277,7 @@
       overflow-x: hidden;
       min-height: 0;
       padding-right: 2px;
+      padding-bottom: 8px;
     }
 
     #todo-scroll-area::-webkit-scrollbar {
@@ -393,8 +394,38 @@
       word-break: break-word;
       overflow-wrap: anywhere;
       flex: 1;
-      padding: 12px 14px 12px 0;
+      padding: 12px 8px 12px 0;
       user-select: text;
+    }
+
+    /* Edit Item Button */
+    .btn-item-edit {
+      background: transparent;
+      border: none;
+      color: #666;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 14px;
+      min-height: 48px;
+      flex-shrink: 0;
+      transition: color 0.15s;
+    }
+
+    .btn-item-edit:hover,
+    .btn-item-edit:active {
+      color: #e8c840;
+    }
+
+    .btn-item-edit svg {
+      width: 15px;
+      height: 15px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
     }
 
     /* Empty state */
@@ -411,8 +442,9 @@
     /* ── Bottom Input Row ── */
     #bottom-input-wrap {
       flex-shrink: 0;
+      background: #0d0d0d;
       border-top: 1px solid #222;
-      padding-top: 10px;
+      padding: 10px 0;
     }
 
     #input-row {
@@ -948,8 +980,36 @@
           }
         };
 
+        // Edit Button on right end
+        const editBtn = document.createElement('button');
+        editBtn.type = 'button';
+        editBtn.className = 'btn-item-edit';
+        editBtn.setAttribute('aria-label', 'Edit task');
+        editBtn.title = 'Edit task';
+        editBtn.innerHTML = `
+          <svg viewBox="0 0 24 24">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+          </svg>
+        `;
+        editBtn.onclick = async (e) => {
+          e.stopPropagation();
+          const updated = await showModal({
+            title: 'EDIT TASK',
+            message: 'MODIFY TASK DESCRIPTION:',
+            isPrompt: true,
+            defaultValue: item.text
+          });
+          if (updated !== null && updated.trim()) {
+            item.text = updated.trim();
+            saveState();
+            renderTodos();
+          }
+        };
+
         li.appendChild(checkBtn);
         li.appendChild(text);
+        li.appendChild(editBtn);
         todoItems.appendChild(li);
       });
     }

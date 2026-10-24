@@ -41,9 +41,10 @@ A lightweight, distraction-free, terminal-themed To-Do app designed for Android 
 
 ---
 
-### 3. Completing Tasks
+### 3. Completing and Editing Tasks
 * **Complete an item:** Tap directly on the square checkbox on the left of any task.
 * **Animation:** The checkbox will fill with an amber checkmark `✓`, smoothly fade out, and the items below will slide up into place.
+* **Edit an item:** Tap the pencil edit icon on the right end of any task. A modal prompt pre-filled with the current description will open, allowing you to update it and press **Enter** or tap **CONFIRM**.
 * **Text Selection:** Tapping or selecting the task text will **not** complete the task, preventing accidental check-offs while scrolling.
 
 ---
